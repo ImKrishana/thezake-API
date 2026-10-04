@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Zake API developer documentation">
+<title>The Zake API Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1016;--panel:#141922;--panel2:#1a212c;--line:#242d3a;--text:#e9eef5;--muted:#93a0b2;--accent:#8aa4ff;--get:#46d3b8;--getbg:rgba(70,211,184,.12);--code:#0a0d12;--warn:#f2b46d;--bad:#ff8a8a;--display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.7 var(--body)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{width:min(1160px,calc(100% - 32px));margin:0 auto}
+header{position:sticky;top:0;z-index:20;background:rgba(13,16,22,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar{height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font:700 17px var(--display)}
+.logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--get));display:grid;place-items:center;color:#0d1016;font:800 15px var(--display)}
+.socials{display:flex;gap:6px}
+.socials a{width:34px;height:34px;display:grid;place-items:center;border-radius:8px;color:var(--muted)}
+.socials a:hover{color:var(--text);background:var(--panel2)}
+.socials svg{width:19px;height:19px;fill:currentColor}
+.hero{padding:64px 0 40px}
+.eyebrow{margin-bottom:10px;color:var(--get);font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+h1{max-width:780px;margin:0 0 14px;font:800 clamp(34px,5.4vw,58px)/1.04 var(--display);letter-spacing:-.035em}
+.lead{max-width:680px;margin:0 0 26px;color:var(--muted);font-size:17px}
+.base{display:flex;align-items:center;gap:12px;max-width:560px;padding:10px 10px 10px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.base span{color:var(--muted);font-size:13px}
+.base code{flex:1;min-width:0;overflow:auto;white-space:nowrap;background:none;padding:0;font-size:13px}
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:48px;padding-bottom:80px}
+aside{position:sticky;top:84px;align-self:start;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 110px);overflow:auto}
+aside a{padding:7px 12px;border-left:2px solid var(--line);color:var(--muted);text-decoration:none;font-size:14px}
+aside a:hover{color:var(--text)}
+aside a.on{color:var(--text);border-left-color:var(--accent);background:linear-gradient(90deg,rgba(138,164,255,.1),transparent)}
+section{scroll-margin-top:84px;margin-bottom:56px}
+h2{margin:0 0 6px;font:700 28px var(--display);letter-spacing:-.02em}
+section>p:first-of-type{margin-top:0}
+h3{margin:0;font:500 15px var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+p{color:var(--muted);margin:10px 0}
+.card{margin:16px 0;padding:20px 22px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.card p:first-of-type{margin-top:12px}
+.card h3+h3{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.method{padding:3px 8px;border-radius:6px;background:var(--getbg);color:var(--get);font:700 11px var(--mono);letter-spacing:.04em}
+code{padding:2px 6px;border-radius:5px;background:var(--code);color:#d9e4f5;font:12.5px var(--mono)}
+h3 code{padding:0;background:none;font-size:15px;color:var(--text)}
+.codebox{position:relative;margin:14px 0 0}
+pre{overflow:auto;margin:0;padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--code);color:#d9e4f5;font:12.5px/1.65 var(--mono);white-space:pre-wrap;word-break:break-word}
+.copy{position:absolute;top:8px;right:8px;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--muted);font:500 11px var(--mono);cursor:pointer}
+.copy:hover{color:var(--text)}
+.copy.done{color:var(--get);border-color:var(--get)}
+.tbl{overflow-x:auto;margin:14px 0 0;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:var(--panel2);color:var(--text);font-weight:500}
+td{color:var(--muted)}
+.st{font:700 12px var(--mono)}
+.s2{color:var(--get)}.s4{color:var(--warn)}.s5{color:var(--bad)}
+footer{border-top:1px solid var(--line);padding:24px 0 30px;color:var(--muted);font-size:13px}
+.footer-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+@media(max-width:860px){
+.layout{grid-template-columns:1fr;gap:20px}
+aside{position:sticky;top:60px;z-index:10;flex-direction:row;overflow-x:auto;max-height:none;padding:8px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+aside a{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;padding:6px 10px}
+aside a.on{border-bottom-color:var(--accent);background:none}
+.hero{padding-top:40px}
+section{scroll-margin-top:120px}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap topbar">
+<a class="brand" href="/"><span class="logo">Z</span>The Zake API</a>
+<span class="socials">
+<a href="https://github.com/Imkrishana" target="_blank" rel="noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v2.9c0 .3.2.7.8.6A12 12 0 0 0 12 .7Z"/></svg></a>
+<a href="https://t.me/TheZake" target="_blank" rel="noreferrer" aria-label="Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 3.5-3.1 16.1c-.2 1.1-.8 1.4-1.6.9l-4.4-3.2-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.1-7.3c.4-.3-.1-.5-.6-.2L7.2 13.8l-4.3-1.4c-.9-.3-.9-.9.2-1.3L20 3c.8-.3 1.6.2 1.4.5Z"/></svg></a>
+</span>
+</div></header>
+
+<main class="wrap">
+<div class="hero">
+<div class="eyebrow">Developer documentation</div>
+<h1>The Zake API</h1>
+<p class="lead">A public HTTP API for poster extraction, direct-link resolution, title metadata, and platform discovery. All responses are JSON unless an HTML page is requested.</p>
+<div class="base"><span>Base URL</span><code>https://your-api.example.com</code></div>
+</div>
+
+<div class="layout">
+<aside aria-label="Documentation navigation">
+<a href="#quickstart">Quick start</a>
+<a href="#posters">Poster API</a>
+<a href="#bypass">DDL bypass</a>
+<a href="#metadata">Metadata APIs</a>
+<a href="#platforms">Platform discovery</a>
+<a href="#responses">Responses and errors</a>
+</aside>
+
+<div>
+<section id="quickstart">
+<h2>Quick start</h2>
+<p>Replace <code>https://your-api.example.com</code> with the deployed API base URL.</p>
+<div class="codebox"><pre>curl -G 'https://your-api.example.com/poster' \
+  --data-urlencode 'url=https://www.playflix.app/content/MjAzMzg='
+
+curl 'https://your-api.example.com/platforms'</pre></div>
+<p>The generic poster endpoint detects the platform from the submitted URL and chooses the correct scraper automatically.</p>
+</section>
+
+<section id="posters">
+<h2>Poster API</h2>
+<div class="card">
+<h3><span class="method">GET</span><code>/poster</code></h3>
+<p>Automatically detect a supported platform and return its scraper response.</p>
+<div class="tbl"><table><tr><th>Query parameter</th><th>Required</th><th>Description</th></tr><tr><td><code>url</code></td><td>Yes</td><td>Complete HTTP(S) content URL from a supported platform.</td></tr></table></div>
+<div class="codebox"><pre>curl -G 'https://your-api.example.com/poster' \
+  --data-urlencode 'url=https://www.playflix.app/content/MjAzMzg='</pre></div>
+<div class="codebox"><pre>{
+  "platform": "playflix",
+  "title": "Example title",
+  "description": "Platform-provided description",
+  "landscape": "https://cdn.example/landscape.jpg",
+  "portrait": "https://cdn.example/portrait.jpg"
+}</pre></div>
+<p>Response fields vary by platform. Treat non-empty fields dynamically rather than assuming only title, year, landscape, and portrait exist.</p>
+</div>
+<div class="card">
+<h3><span class="method">GET</span><code>/posters/{platform}</code></h3>
+<p>Call a known scraper directly. This is useful for existing integrations that already know the platform ID.</p>
+<div class="codebox"><pre>GET /posters/playflix?url=https%3A%2F%2Fwww.playflix.app%2Fcontent%2FMjAzMzg%3D</pre></div>
+<p>Platform IDs and accepted domains are available from <code>/platforms</code>.</p>
+</div>
+</section>
+
+<section id="bypass">
+<h2>DDL bypass</h2>
+<div class="card">
+<h3><span class="method">GET</span><code>/bypass</code></h3>
+<p>Resolve a supported file-host URL to a direct download link.</p>
+<div class="tbl"><table><tr><th>Query parameter</th><th>Required</th><th>Description</th></tr><tr><td><code>url</code></td><td>Yes</td><td>Complete HTTP(S) file-host URL.</td></tr></table></div>
+<div class="codebox"><pre>curl -G 'https://your-api.example.com/bypass' \
+  --data-urlencode 'url=https://example.com/file/abc'</pre></div>
+</div>
+<div class="card"><h3><span class="method">GET</span><code>/bypass/platforms</code></h3><p>Return the file hosts currently supported by the direct-link resolver.</p></div>
+</section>
+
+<section id="metadata">
+<h2>Metadata APIs</h2>
+<div class="card"><h3><span class="method">GET</span><code>/tmdb</code></h3><p>Search for a movie or TV series.</p><div class="codebox"><pre>GET /tmdb?query=Inception</pre></div></div>
+<div class="card"><h3><span class="method">GET</span><code>/imdb</code> and <code>/imdb/{imdb_id}</code></h3><p>Search IMDb by title or ID, or fetch a title by ID.</p><div class="codebox"><pre>GET /imdb?query=Inception
+GET /imdb/tt1375666</pre></div></div>
+<div class="card"><h3><span class="method">GET</span><code>/mydramalist</code> and <code>/mydramalist/{slug}</code></h3><p>Search dramas or retrieve a drama detail page.</p><div class="codebox"><pre>GET /mydramalist?query=Moving
+GET /mydramalist/moving</pre></div></div>
+<div class="card"><h3><span class="method">GET</span><code>/anilist/anime</code></h3><p>Search AniList anime by <code>query</code> or <code>id</code>.</p><h3><span class="method">GET</span><code>/anilist/anime/{anime_id}</code></h3><p>Fetch an AniList anime by ID. The same pattern is available for <code>/anilist/character</code> and <code>/anilist/manga</code>.</p><div class="codebox"><pre>GET /anilist/anime?query=One%20Piece
+GET /anilist/anime/21
+GET /anilist/character?id=40
+GET /anilist/manga?query=Monster</pre></div></div>
+</section>
+
+<section id="platforms">
+<h2>Platform discovery</h2>
+<div class="card"><h3><span class="method">GET</span><code>/platforms</code></h3><p>List poster platform IDs, display names, and accepted domains.</p><div class="codebox"><pre>{
+  "count": 40,
+  "platforms": [
+    {"id":"playflix","name":"Playflix","domains":["playflix.app"]}
+  ]
+}</pre></div></div>
+<div class="card"><h3><span class="method">GET</span><code>/supported</code></h3><p>Open the supported-platforms HTML page.</p></div>
+</section>
+
+<section id="responses">
+<h2>Responses and errors</h2>
+<p>Successful JSON responses use the standard <code>2xx</code> status range. Error responses contain an <code>error</code> or <code>detail</code> object.</p>
+<div class="tbl"><table><tr><th>Status</th><th>Meaning</th></tr>
+<tr><td><code class="st s2">200</code></td><td>Request succeeded.</td></tr>
+<tr><td><code class="st s4">404</code></td><td>Unsupported platform, missing title, or unknown resource.</td></tr>
+<tr><td><code class="st s5">502</code></td><td>Upstream scraper or resolver failed.</td></tr>
+<tr><td><code class="st s5">500</code></td><td>Server-side handler configuration error.</td></tr></table></div>
+<div class="codebox"><pre>{
+  "detail": {
+    "error": "Unsupported platform",
+    "url": "https://example.invalid/title"
+  }
+}</pre></div>
+</section>
+
+</div>
+</div>
+</main>
+
+<footer><div class="wrap footer-row"><span>© 2026 The Zake. All rights reserved.</span><span class="socials"><a href="https://github.com/Imkrishana" target="_blank" rel="noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v2.9c0 .3.2.7.8.6A12 12 0 0 0 12 .7Z"/></svg></a><a href="https://t.me/TheZake" target="_blank" rel="noreferrer" aria-label="Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 3.5-3.1 16.1c-.2 1.1-.8 1.4-1.6.9l-4.4-3.2-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.1-7.3c.4-.3-.1-.5-.6-.2L7.2 13.8l-4.3-1.4c-.9-.3-.9-.9.2-1.3L20 3c.8-.3 1.6.2 1.4.5Z"/></svg></a></span></div></footer>
+
+<script>
+document.querySelectorAll(".codebox").forEach(function(box){
+  var b=document.createElement("button");
+  b.className="copy";b.type="button";b.textContent="Copy";
+  b.addEventListener("click",function(){
+    var t=box.querySelector("pre").innerText;
+    var ok=function(){b.textContent="Copied";b.classList.add("done");setTimeout(function(){b.textContent="Copy";b.classList.remove("done")},1500)};
+    if(navigator.clipboard){navigator.clipboard.writeText(t).then(ok)}
+  });
+  box.appendChild(b);
+});
+var links=document.querySelectorAll("aside a");
+var map={};
+links.forEach(function(a){map[a.getAttribute("href").slice(1)]=a});
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    if(e.isIntersecting){
+      links.forEach(function(a){a.classList.remove("on")});
+      map[e.target.id].classList.add("on");
+    }
+  });
+},{rootMargin:"-20% 0px -70% 0px"});
+document.querySelectorAll("section[id]").forEach(function(s){io.observe(s)});
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Zake Poster and Direct Link API">
+    <title>The Zake API</title>
+    <style>
+        :root { --bg:#090b10; --panel:#11151d; --line:#29313d; --text:#f2f5f8; --muted:#8e99a8; --accent:#73e0a5; --danger:#ff7c86; --blue:#8db7ff; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:radial-gradient(circle at 80% 0%,#182231 0,var(--bg) 38%); color:var(--text); font:15px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+        a { color:inherit; }
+        .wrap { width:min(1100px,calc(100% - 32px)); margin:0 auto; }
+        header { border-bottom:1px solid var(--line); }
+        .topbar { position:relative; min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+        .brand { position:absolute; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:11px; text-decoration:none; font-weight:700; z-index:1; }
+        .mark { display:grid; place-items:center; width:34px; height:34px; border:1px solid #4d5b6d; border-radius:9px; color:var(--accent); font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace; }
+        .menu-toggle { position:relative; z-index:21; display:grid; gap:5px; width:42px; height:42px; padding:10px; border:1px solid var(--line); border-radius:9px; background:transparent; }
+        .menu-toggle span { display:block; width:20px; height:2px; border-radius:2px; background:var(--text); transition:transform .2s,opacity .2s; }
+        .menu-toggle:hover { background:var(--panel); }
+        .theme-toggle { position:relative; z-index:21; display:grid; place-items:center; width:42px; height:42px; margin-left:auto; padding:0; border:1px solid var(--line); border-radius:9px; background:transparent; color:var(--text); font-size:20px; line-height:1; }
+        .theme-toggle:hover { background:var(--panel); }
+        .drawer { position:fixed; z-index:20; top:0; left:0; width:min(320px,86vw); height:100vh; padding:82px 28px 28px; border-right:1px solid var(--line); background:#0d1118; box-shadow:18px 0 45px rgba(0,0,0,.35); transform:translateX(-100%); transition:transform .25s ease; }
+        .drawer.open { transform:translateX(0); }
+        .drawer nav { display:flex; flex-direction:column; gap:4px; color:var(--muted); font-size:15px; }
+        .drawer nav a { padding:11px 0; border-bottom:1px solid var(--line); text-decoration:none; }
+        .drawer nav a:hover { color:var(--accent); }
+        .drawer-social,.drawer-link { display:flex; align-items:center; gap:10px; }
+        .drawer-social svg { width:18px; height:18px; fill:currentColor; }
+        .drawer-icon { width:18px; color:var(--accent); font:700 13px ui-monospace,SFMono-Regular,Menlo,monospace; }
+        .scrim { position:fixed; z-index:19; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .25s ease; }
+        .scrim.open { opacity:1; pointer-events:auto; }
+        body.menu-open { overflow:hidden; }
+        body[data-theme="light"] { --bg:#f4f7fa; --panel:#ffffff; --line:#d7dfe8; --text:#16202b; --muted:#617080; --accent:#16834d; --danger:#bb3344; --blue:#2465b4; background:radial-gradient(circle at 80% 0%,#e2ebf4 0,var(--bg) 38%); }
+        body[data-theme="light"] .drawer,body[data-theme="light"] .panel { background:rgba(255,255,255,.92); }
+        body[data-theme="light"] input,body[data-theme="light"] select,body[data-theme="light"] pre { background:#f8fafc; color:var(--text); }
+        body[data-theme="light"] .menu-toggle,body[data-theme="light"] .theme-toggle { background:#ffffff; color:var(--text); }
+        @media (prefers-color-scheme: light) { body[data-theme="auto"] { --bg:#f4f7fa; --panel:#ffffff; --line:#d7dfe8; --text:#16202b; --muted:#617080; --accent:#16834d; --danger:#bb3344; --blue:#2465b4; background:radial-gradient(circle at 80% 0%,#e2ebf4 0,var(--bg) 38%); } body[data-theme="auto"] .drawer,body[data-theme="auto"] .panel,body[data-theme="auto"] input,body[data-theme="auto"] select,body[data-theme="auto"] pre { background:#ffffff; color:var(--text); } }
+        nav a,.credit a,footer a { text-decoration:none; }
+        .credit a:hover,footer a:hover { color:var(--accent); }
+        main { padding:68px 0 80px; }
+        .hero { max-width:760px; margin-bottom:42px; }
+        .eyebrow { color:var(--accent); font:12px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.08em; text-transform:uppercase; }
+        h1 { max-width:680px; margin:12px 0 16px; font-size:clamp(18px,2.4vw,30px); line-height:1.12; letter-spacing:-.03em; }
+        .hero p { max-width:650px; margin:0; color:var(--muted); font-size:17px; }
+        .credits { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:22px; color:var(--muted); font-size:13px; }
+        .credit a { color:var(--blue); }
+        .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+        .panel { padding:22px; border:1px solid var(--line); border-radius:14px; background:rgba(17,21,29,.88); }
+        .panel-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+        .panel h2 { margin:0 0 4px; font-size:20px; }
+        .panel p { margin:0; color:var(--muted); font-size:13px; }
+        .badge { flex:0 0 auto; padding:4px 8px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font:11px ui-monospace,SFMono-Regular,Menlo,monospace; }
+        label { display:block; margin:0 0 7px; color:#c7d0dc; font-size:12px; }
+        .field { margin-bottom:15px; }
+        input,select { width:100%; height:43px; padding:0 12px; border:1px solid var(--line); border-radius:8px; outline:none; background:#0b0e14; color:var(--text); font:inherit; }
+        input:focus { border-color:#66788f; }
+        input::placeholder { color:#5f6a79; }
+        button { min-height:41px; padding:0 15px; border:1px solid #b9c7d8; border-radius:8px; background:#edf3f8; color:#0a0d12; cursor:pointer; font-weight:700; }
+        button:hover { background:white; }
+        button:disabled { cursor:wait; opacity:.6; }
+        .hint { min-height:22px; margin:10px 0 0; color:var(--muted); font-size:12px; }
+        .error { display:none; margin-top:14px; padding:10px 12px; border:1px solid #63343e; border-radius:8px; background:#25151b; color:var(--danger); font-size:13px; }
+        .error.show { display:block; }
+        .output { display:none; margin-top:18px; }
+        .output.show { display:block; }
+        .output-title { margin-bottom:7px; color:var(--accent); font:12px ui-monospace,SFMono-Regular,Menlo,monospace; text-transform:uppercase; }
+        pre { overflow:auto; max-height:330px; margin:0; padding:14px; border:1px solid var(--line); border-radius:8px; background:#0a0d12; color:#dbe5f2; font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; word-break:break-word; }
+        .wide { margin-top:18px; }
+        .wide h2 { margin:0 0 4px; font-size:19px; }
+        .wide p { margin:0 0 16px; color:var(--muted); font-size:13px; }
+        .platforms { display:flex; flex-wrap:wrap; gap:8px; }
+        .platform { padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:#c8d1dc; font-size:12px; }
+        .api-note { margin-top:18px; color:var(--muted); font-size:12px; }
+        footer { border-top:1px solid var(--line); padding:23px 0 28px; color:var(--muted); font-size:12px; }
+        .footer-row { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+        .socials { display:flex; align-items:center; gap:14px; }
+        .socials a { display:grid; place-items:center; color:var(--muted); }
+        .socials a:hover { color:var(--accent); }
+        .socials svg { width:20px; height:20px; fill:currentColor; }
+        @media (max-width:760px) { .topbar { padding:17px 0; } main { padding-top:46px; } .grid { grid-template-columns:1fr; } h1 { font-size:26px; } }
+    </style>
+</head>
+<body>
+<header><div class="wrap topbar">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a class="brand" href="/"><span class="mark">TZ</span><span>The Zake API</span></a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme">◐</button>
+</div></header>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Site menu">
+    <nav>
+        <a href="/supported">Supported Platform</a>
+        <a class="drawer-link" href="/docs"><span class="drawer-icon" aria-hidden="true">&lt;/&gt;</span><span>API Documentation</span></a>
+        <a class="drawer-social" href="https://t.me/TheZake" target="_blank" rel="noreferrer" aria-label="Developer on Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 3.5-3.1 16.1c-.2 1.1-.8 1.4-1.6.9l-4.4-3.2-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.1-7.3c.4-.3-.1-.5-.6-.2L7.2 13.8l-4.3-1.4c-.9-.3-.9-.9.2-1.3L20 3c.8-.3 1.6.2 1.4.5Z"/></svg><span>Developer</span></a>
+        <a class="drawer-social" href="https://github.com/Imkrishana" target="_blank" rel="noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v2.9c0 .3.2.7.8.6A12 12 0 0 0 12 .7Z"/></svg><span>GitHub</span></a>
+
+    </nav>
+</aside>
+<main class="wrap">
+    <section class="hero">
+        <div class="eyebrow">The Zake API</div>
+        <h1>Poster Scraper DDL Bypasser TMDB/IMDb Anylist MyDramaList</h1>
+    </section>
+    <section class="grid">
+        <article class="panel" id="posters">
+            <div class="panel-head"><div><h2>Poster Scraper</h2></div><span class="badge">PUBLIC</span></div>
+            <div class="field"><label for="posterUrl">Poster URL</label><input id="posterUrl" type="url" placeholder="https://www.netflix.com/title/80100172" autocomplete="off"></div>
+            <button id="posterButton" type="button">Get Posters</button>
+            <div class="hint" id="posterHint"></div><div class="error" id="posterError"></div>
+            <div class="output" id="posterOutput"><div class="output-title">Response</div><pre id="posterJson"></pre></div>
+        </article>
+        <article class="panel" id="bypass">
+            <div class="panel-head"><div><h2>DDL Bypasser</h2></div><span class="badge">PUBLIC</span></div>
+            <div class="field"><label for="bypassUrl">DDL URL</label><input id="bypassUrl" type="url" placeholder="https://mega.nz/file/example" autocomplete="off"></div>
+            <button id="bypassButton" type="button">Get direct link</button>
+            <div class="error" id="bypassError"></div>
+            <div class="output" id="bypassOutput"><div class="output-title">Response</div><pre id="bypassJson"></pre></div>
+        </article>
+    </section>
+    <section class="panel wide" id="anilist">
+        <div class="panel-head"><div><h2>AniList</h2></div><span class="badge">PUBLIC</span></div>
+        <div class="field"><label for="anilistType">Type</label><select id="anilistType"><option value="anime">Anime</option><option value="character">Character</option><option value="manga">Manga</option></select></div>
+        <div class="field"><label for="anilistQuery">Search</label><input id="anilistQuery" type="text" placeholder="One Piece or 21" autocomplete="off"></div>
+        <button id="anilistButton" type="button">Get AniList Data</button>
+        <div class="error" id="anilistError"></div>
+        <div class="output" id="anilistOutput"><div class="output-title">Response</div><pre id="anilistJson"></pre></div>
+    </section>
+    <section class="grid wide">
+        <article class="panel" id="mydramalist">
+            <div class="panel-head"><div><h2>MyDramaList</h2></div><span class="badge">PUBLIC</span></div>
+            <div class="field"><label for="mydramalistQuery">Search</label><input id="mydramalistQuery" type="text" placeholder="Moving or Weak Hero Class 1" autocomplete="off"></div>
+            <button id="mydramalistButton" type="button">Get Drama Data</button>
+            <div class="error" id="mydramalistError"></div>
+            <div class="output" id="mydramalistOutput"><div class="output-title">Response</div><pre id="mydramalistJson"></pre></div>
+        </article>
+        <article class="panel" id="imdb">
+            <div class="panel-head"><div><h2>IMDb</h2></div><span class="badge">PUBLIC</span></div>
+            <div class="field"><label for="imdbQuery">Search</label><input id="imdbQuery" type="text" placeholder="Inception or tt1375666" autocomplete="off"></div>
+            <button id="imdbButton" type="button">Get IMDb Data</button>
+            <div class="error" id="imdbError"></div>
+            <div class="output" id="imdbOutput"><div class="output-title">Response</div><pre id="imdbJson"></pre></div>
+        </article>
+        <article class="panel" id="tmdb">
+            <div class="panel-head"><div><h2>TMDB</h2></div><span class="badge">WORKER</span></div>
+            <div class="field"><label for="tmdbQuery">Search</label><input id="tmdbQuery" type="text" placeholder="Inception or Avatar 2025" autocomplete="off"></div>
+            <button id="tmdbButton" type="button">Get TMDB Data</button>
+            <div class="error" id="tmdbError"></div>
+            <div class="output" id="tmdbOutput"><div class="output-title">Response</div><pre id="tmdbJson"></pre></div>
+        </article>
+    </section>
+</main>
+<footer><div class="wrap footer-row"><span>© 2026 The Zake. All rights reserved.</span><span class="socials">
+    <a href="https://github.com/Imkrishana" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v2.9c0 .3.2.7.8.6A12 12 0 0 0 12 .7Z"/></svg>
+    </a>
+    <a href="https://t.me/TheZake" target="_blank" rel="noreferrer" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 3.5-3.1 16.1c-.2 1.1-.8 1.4-1.6.9l-4.4-3.2-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.1-7.3c.4-.3-.1-.5-.6-.2L7.2 13.8l-4.3-1.4c-.9-.3-.9-.9.2-1.3L20 3c.8-.3 1.6.2 1.4.5Z"/></svg>
+    </a>
+</span></div></footer>
+<script>
+    const menuToggle = document.getElementById("menuToggle");
+    const themeToggle = document.getElementById("themeToggle");
+    const themes = ["auto", "dark", "light"];
+    function setTheme(theme) { document.body.dataset.theme = theme; themeToggle.textContent = theme === "light" ? "☀" : theme === "dark" ? "☾" : "◐"; themeToggle.setAttribute("aria-label", "Theme: " + theme + ". Click to change theme."); localStorage.setItem("theme", theme); }
+    setTheme(localStorage.getItem("theme") || "auto");
+    themeToggle.addEventListener("click", function () { const current = document.body.dataset.theme || "auto"; setTheme(themes[(themes.indexOf(current) + 1) % themes.length]); });
+    const drawer = document.getElementById("drawer");
+    const scrim = document.getElementById("scrim");
+    function closeMenu() { drawer.classList.remove("open"); scrim.classList.remove("open"); document.body.classList.remove("menu-open"); menuToggle.setAttribute("aria-expanded", "false"); menuToggle.setAttribute("aria-label", "Open menu"); }
+    function toggleMenu() { const open = !drawer.classList.contains("open"); drawer.classList.toggle("open", open); scrim.classList.toggle("open", open); document.body.classList.toggle("menu-open", open); menuToggle.setAttribute("aria-expanded", String(open)); menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu"); }
+    menuToggle.addEventListener("click", toggleMenu); scrim.addEventListener("click", closeMenu); drawer.querySelectorAll("a").forEach(function (link) { link.addEventListener("click", closeMenu); });
+    const posterUrl = document.getElementById("posterUrl");
+    const posterButton = document.getElementById("posterButton");
+    const posterHint = document.getElementById("posterHint");
+    const posterError = document.getElementById("posterError");
+    const posterOutput = document.getElementById("posterOutput");
+    const posterJson = document.getElementById("posterJson");
+    const bypassUrl = document.getElementById("bypassUrl");
+    const bypassButton = document.getElementById("bypassButton");
+    const bypassError = document.getElementById("bypassError");
+    const bypassOutput = document.getElementById("bypassOutput");
+    const bypassJson = document.getElementById("bypassJson");
+    const anilistType = document.getElementById("anilistType");
+    const anilistQuery = document.getElementById("anilistQuery");
+    const anilistButton = document.getElementById("anilistButton");
+    const anilistError = document.getElementById("anilistError");
+    const anilistOutput = document.getElementById("anilistOutput");
+    const anilistJson = document.getElementById("anilistJson");
+    const mydramalistQuery = document.getElementById("mydramalistQuery");
+    const mydramalistButton = document.getElementById("mydramalistButton");
+    const mydramalistError = document.getElementById("mydramalistError");
+    const mydramalistOutput = document.getElementById("mydramalistOutput");
+    const mydramalistJson = document.getElementById("mydramalistJson");
+    const imdbQuery = document.getElementById("imdbQuery");
+    const imdbButton = document.getElementById("imdbButton");
+    const imdbError = document.getElementById("imdbError");
+    const imdbOutput = document.getElementById("imdbOutput");
+    const imdbJson = document.getElementById("imdbJson");
+    const tmdbQuery = document.getElementById("tmdbQuery");
+    const tmdbButton = document.getElementById("tmdbButton");
+    const tmdbError = document.getElementById("tmdbError");
+    const tmdbOutput = document.getElementById("tmdbOutput");
+    const tmdbJson = document.getElementById("tmdbJson");
+    function setError(element, message) { element.textContent = message; element.classList.toggle("show", Boolean(message)); }
+    function responseMessage(data) { if (typeof data.detail === "object" && data.detail !== null) return data.detail.error || data.detail.message || "Request failed."; return data.detail || data.error || data.message || "Request failed."; }
+    async function requestJson(endpoint, options) { const response = await fetch(endpoint, options); let data; try { data = await response.json(); } catch { throw new Error("The API returned an invalid response."); } if (!response.ok) { const error = new Error(responseMessage(data)); error.payload = data; throw error; } return data; }
+    async function testPoster() {
+        setError(posterError, ""); posterOutput.classList.remove("show"); const url = posterUrl.value.trim();
+        if (!url) { setError(posterError, "Enter a supported content URL."); posterUrl.focus(); return; }
+        posterButton.disabled = true; posterButton.textContent = "Loading...";
+        try { const data = await requestJson("/poster?url=" + encodeURIComponent(url)); posterHint.textContent = data.platform ? "Detected platform: " + data.platform : "Request complete"; posterJson.textContent = JSON.stringify(data, null, 2); posterOutput.classList.add("show"); } catch (error) { setError(posterError, error.message); } finally { posterButton.disabled = false; posterButton.textContent = "Get Posters"; }
+    }
+    async function testBypass() {
+        setError(bypassError, ""); bypassOutput.classList.remove("show"); const url = bypassUrl.value.trim();
+        if (!url) { setError(bypassError, "Enter a supported cloud or file-host URL."); bypassUrl.focus(); return; }
+        bypassButton.disabled = true; bypassButton.textContent = "Loading...";
+        try { const data = await requestJson("/bypass?url=" + encodeURIComponent(url)); bypassJson.textContent = JSON.stringify(data, null, 2); bypassOutput.classList.add("show"); } catch (error) { bypassJson.textContent = JSON.stringify(error.payload || { error: error.message }, null, 2); bypassOutput.classList.add("show"); } finally { bypassButton.disabled = false; bypassButton.textContent = "Get Direct Link"; }
+    }
+    const anilistExamples = { anime: "One Piece or 21", character: "Monkey D. Luffy or 40", manga: "One Piece or 30002" };
+    function updateAnilistExample() { anilistQuery.placeholder = anilistExamples[anilistType.value]; }
+    anilistType.addEventListener("change", updateAnilistExample);
+    updateAnilistExample();
+    async function testAnilist() {
+        setError(anilistError, ""); anilistOutput.classList.remove("show"); const query = anilistQuery.value.trim();
+        if (!query) { setError(anilistError, "Enter an anime, character, or manga name."); anilistQuery.focus(); return; }
+        anilistButton.disabled = true; anilistButton.textContent = "Loading...";
+        try { const data = await requestJson("/anilist/" + anilistType.value + "?query=" + encodeURIComponent(query)); anilistJson.textContent = JSON.stringify(data, null, 2); anilistOutput.classList.add("show"); } catch (error) { anilistJson.textContent = JSON.stringify(error.payload || { error: error.message }, null, 2); anilistOutput.classList.add("show"); } finally { anilistButton.disabled = false; anilistButton.textContent = "Get AniList Data"; }
+    }
+    async function testMyDramaList() {
+        setError(mydramalistError, ""); mydramalistOutput.classList.remove("show"); const query = mydramalistQuery.value.trim();
+        if (!query) { setError(mydramalistError, "Enter a drama or movie name."); mydramalistQuery.focus(); return; }
+        mydramalistButton.disabled = true; mydramalistButton.textContent = "Loading...";
+        try { const data = await requestJson("/mydramalist?query=" + encodeURIComponent(query)); mydramalistJson.textContent = JSON.stringify(data, null, 2); mydramalistOutput.classList.add("show"); } catch (error) { mydramalistJson.textContent = JSON.stringify(error.payload || { error: error.message }, null, 2); mydramalistOutput.classList.add("show"); } finally { mydramalistButton.disabled = false; mydramalistButton.textContent = "Get Drama Data"; }
+    }
+    async function testImdb() {
+        setError(imdbError, ""); imdbOutput.classList.remove("show"); const query = imdbQuery.value.trim();
+        if (!query) { setError(imdbError, "Enter a movie, series, or IMDb ID."); imdbQuery.focus(); return; }
+        imdbButton.disabled = true; imdbButton.textContent = "Loading...";
+        try { const data = await requestJson("/imdb?query=" + encodeURIComponent(query)); imdbJson.textContent = JSON.stringify(data, null, 2); imdbOutput.classList.add("show"); } catch (error) { imdbJson.textContent = JSON.stringify(error.payload || { error: error.message }, null, 2); imdbOutput.classList.add("show"); } finally { imdbButton.disabled = false; imdbButton.textContent = "Get IMDb Data"; }
+    }
+    async function testTmdb() {
+        setError(tmdbError, ""); tmdbOutput.classList.remove("show"); const query = tmdbQuery.value.trim();
+        if (!query) { setError(tmdbError, "Enter a movie or TV series name."); tmdbQuery.focus(); return; }
+        tmdbButton.disabled = true; tmdbButton.textContent = "Loading...";
+        try { const data = await requestJson("/tmdb?query=" + encodeURIComponent(query)); tmdbJson.textContent = JSON.stringify(data, null, 2); tmdbOutput.classList.add("show"); } catch (error) { tmdbJson.textContent = JSON.stringify(error.payload || { error: error.message }, null, 2); tmdbOutput.classList.add("show"); } finally { tmdbButton.disabled = false; tmdbButton.textContent = "Get TMDB Data"; }
+    }
+    posterButton.addEventListener("click", testPoster); bypassButton.addEventListener("click", testBypass); anilistButton.addEventListener("click", testAnilist); mydramalistButton.addEventListener("click", testMyDramaList); imdbButton.addEventListener("click", testImdb); tmdbButton.addEventListener("click", testTmdb);
+    posterUrl.addEventListener("keydown", function (event) { if (event.key === "Enter") testPoster(); });
+    bypassUrl.addEventListener("keydown", function (event) { if (event.key === "Enter") testBypass(); });
+    anilistQuery.addEventListener("keydown", function (event) { if (event.key === "Enter") testAnilist(); });
+    mydramalistQuery.addEventListener("keydown", function (event) { if (event.key === "Enter") testMyDramaList(); });
+    imdbQuery.addEventListener("keydown", function (event) { if (event.key === "Enter") testImdb(); });
+    tmdbQuery.addEventListener("keydown", function (event) { if (event.key === "Enter") testTmdb(); });
+</script>
+</body>
+</html>

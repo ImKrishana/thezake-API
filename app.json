@@ -1,0 +1,10 @@
+{
+  "name": "The Zake API",
+  "description": "Poster extraction, direct-link resolution, and entertainment metadata API.",
+  "keywords": [
+    "fastapi",
+    "posters",
+    "api",
+    "metadata"
+  ]
+}

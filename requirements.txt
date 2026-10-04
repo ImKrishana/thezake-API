@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+curl_cffi
+pycryptodome
+python-socketio[client]
+cloudscraper
+lxml
+cryptography
+niquests
+imdbio

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Supported platforms and services for The Zake API">
+    <title>Supported Platforms · The Zake API</title>
+    <style>
+        :root { --bg:#090b10; --panel:#11151d; --line:#29313d; --text:#f2f5f8; --muted:#8e99a8; --accent:#73e0a5; --danger:#ff7c86; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:radial-gradient(circle at 80% 0%,#182231 0,var(--bg) 38%); color:var(--text); font:15px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+        a { color:inherit; }
+        .wrap { width:min(1100px,calc(100% - 32px)); margin:0 auto; }
+        header { border-bottom:1px solid var(--line); }
+        .topbar { position:relative; min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+        .brand { position:absolute; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:11px; text-decoration:none; font-weight:700; z-index:1; }
+        .mark { display:grid; place-items:center; width:34px; height:34px; border:1px solid #4d5b6d; border-radius:9px; color:var(--accent); font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace; }
+        .menu-toggle { position:relative; z-index:21; display:grid; gap:5px; width:42px; height:42px; padding:10px; border:1px solid var(--line); border-radius:9px; background:transparent; }
+        .menu-toggle span { display:block; width:20px; height:2px; border-radius:2px; background:var(--text); }
+        .menu-toggle:hover { background:var(--panel); }
+        .theme-toggle { position:relative; z-index:21; display:grid; place-items:center; width:42px; height:42px; margin-left:auto; padding:0; border:1px solid var(--line); border-radius:9px; background:transparent; color:var(--text); font-size:20px; line-height:1; }
+        .theme-toggle:hover { background:var(--panel); }
+        .drawer { position:fixed; z-index:20; top:0; left:0; width:min(320px,86vw); height:100vh; padding:82px 28px 28px; border-right:1px solid var(--line); background:#0d1118; box-shadow:18px 0 45px rgba(0,0,0,.35); transform:translateX(-100%); transition:transform .25s ease; }
+        .drawer.open { transform:translateX(0); }
+        .drawer nav { display:flex; flex-direction:column; gap:4px; color:var(--muted); font-size:15px; }
+        .drawer nav a { padding:11px 0; border-bottom:1px solid var(--line); text-decoration:none; }
+        .drawer nav a:hover { color:var(--accent); }
+        .drawer-social,.drawer-link { display:flex; align-items:center; gap:10px; }
+        .drawer-social svg { width:18px; height:18px; fill:currentColor; }
+        .drawer-icon { width:18px; color:var(--accent); font:700 13px ui-monospace,SFMono-Regular,Menlo,monospace; }
+        .scrim { position:fixed; z-index:19; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .25s ease; }
+        .scrim.open { opacity:1; pointer-events:auto; }
+        body.menu-open { overflow:hidden; }
+        body[data-theme="light"] { --bg:#f4f7fa; --panel:#ffffff; --line:#d7dfe8; --text:#16202b; --muted:#617080; --accent:#16834d; --danger:#bb3344; background:radial-gradient(circle at 80% 0%,#e2ebf4 0,var(--bg) 38%); }
+        body[data-theme="light"] .drawer { background:#ffffff; }
+        body[data-theme="light"] .group { background:rgba(255,255,255,.9); }
+        body[data-theme="light"] .filter,body[data-theme="light"] .platform,body[data-theme="light"] .service a { background:#f8fafc; color:var(--text); }
+        body[data-theme="light"] .platform strong,body[data-theme="light"] .service strong { color:var(--text); }
+        body[data-theme="light"] .menu-toggle,body[data-theme="light"] .theme-toggle { background:#ffffff; color:var(--text); }
+        @media (prefers-color-scheme: light) { body[data-theme="auto"] { --bg:#f4f7fa; --panel:#ffffff; --line:#d7dfe8; --text:#16202b; --muted:#617080; --accent:#16834d; --danger:#bb3344; background:radial-gradient(circle at 80% 0%,#e2ebf4 0,var(--bg) 38%); } body[data-theme="auto"] .drawer,body[data-theme="auto"] .group,body[data-theme="auto"] .filter,body[data-theme="auto"] .platform,body[data-theme="auto"] .service a { background:#ffffff; color:var(--text); } body[data-theme="auto"] .platform strong,body[data-theme="auto"] .service strong { color:var(--text); } }
+        main { padding:34px 0 52px; }
+        .heading { margin-bottom:18px; }
+        .eyebrow { color:var(--accent); font:12px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.08em; text-transform:uppercase; }
+        h1 { margin:7px 0 5px; font-size:clamp(32px,5vw,50px); line-height:1.04; letter-spacing:-.05em; }
+        .heading p { margin:0; color:var(--muted); font-size:13px; }
+        .summary { display:flex; flex-wrap:wrap; gap:7px; margin:15px 0 14px; }
+        .summary span { padding:5px 9px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:11px; }
+        .filter { width:100%; height:38px; margin:0 0 14px; padding:0 11px; border:1px solid var(--line); border-radius:8px; outline:none; background:#0d1118; color:var(--text); font:13px Inter,ui-sans-serif,system-ui,sans-serif; }
+        .group { margin-top:12px; padding:15px; border:1px solid var(--line); border-radius:11px; background:rgba(17,21,29,.88); }
+        .group-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+        h2 { margin:0; font-size:17px; }
+        .count { color:var(--muted); font:12px ui-monospace,SFMono-Regular,Menlo,monospace; }
+        .platforms { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:6px; max-height:330px; overflow-y:auto; padding-right:3px; }
+        .platform { min-height:0; padding:8px 9px; border:1px solid var(--line); border-radius:8px; background:#0d1118; }
+        .platform strong { display:block; margin-bottom:2px; color:#dfe8f2; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .platform span { display:block; color:var(--muted); font-size:10px; line-height:1.35; overflow-wrap:anywhere; }
+        .service { display:flex; flex-wrap:wrap; gap:10px; }
+        .service a { display:block; min-width:190px; padding:10px; border:1px solid var(--line); border-radius:8px; background:#0d1118; text-decoration:none; }
+        .service strong { display:block; color:#dfe8f2; }
+        .service span { color:var(--muted); font-size:12px; }
+        .state { color:var(--muted); font-size:13px; }
+        footer { border-top:1px solid var(--line); padding:23px 0 28px; color:var(--muted); font-size:12px; }
+        .footer-row { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+        .socials { display:flex; align-items:center; gap:14px; }
+        .socials a { display:grid; place-items:center; color:var(--muted); }
+        .socials a:hover { color:var(--accent); }
+        .socials svg { width:20px; height:20px; fill:currentColor; }
+        @media (max-width:700px) { .topbar { padding:17px 0; } .platforms { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+<header><div class="wrap topbar">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a class="brand" href="/"><span class="mark">TZ</span><span>The Zake API</span></a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme">◐</button>
+</div></header>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Site menu">
+    <nav>
+        <a href="/supported">Supported Platform</a>
+        <a class="drawer-link" href="/docs"><span class="drawer-icon" aria-hidden="true">&lt;/&gt;</span><span>API Documentation</span></a>
+        <a class="drawer-social" href="https://t.me/TheZake" target="_blank" rel="noreferrer" aria-label="Developer on Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 3.5-3.1 16.1c-.2 1.1-.8 1.4-1.6.9l-4.4-3.2-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.1-7.3c.4-.3-.1-.5-.6-.2L7.2 13.8l-4.3-1.4c-.9-.3-.9-.9.2-1.3L20 3c.8-.3 1.6.2 1.4.5Z"/></svg><span>Developer</span></a>
+        <a class="drawer-social" href="https://github.com/Imkrishana" target="_blank" rel="noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v2.9c0 .3.2.7.8.6A12 12 0 0 0 12 .7Z"/></svg><span>GitHub</span></a>
+
+    </nav>
+</aside>
+<main class="wrap">
+    <section class="heading">
+        <div class="eyebrow">Coverage</div>
+        <h1>Supported Platforms</h1>
+        <p>Browse every poster host, DDL host, and metadata service currently available.</p>
+        <div class="summary"><span id="posterCount">Poster hosts: Loading...</span><span id="bypassCount">DDL hosts: Loading...</span><span>Metadata: AniList · IMDb · MyDramaList · TMDB</span><input class="filter" id="filter" type="search" placeholder="Filter supported hosts..."></div>
+    </section>
+    <section class="group">
+        <div class="group-head"><h2>Poster Platforms</h2><span class="count" id="posterStatus">Loading...</span></div>
+        <div class="platforms" id="posterList"></div>
+    </section>
+    <section class="group">
+        <div class="group-head"><h2>DDL Bypass Platforms</h2><span class="count" id="bypassStatus">Loading...</span></div>
+        <div class="platforms" id="bypassList"></div>
+    </section>
+    <section class="group">
+        <div class="group-head"><h2>Metadata Services</h2><span class="count">4 services</span></div>
+        <div class="service">
+            <a href="/anilist/anime?query=One%20Piece"><strong>AniList</strong><span>Anime, character, and manga metadata</span></a>
+            <a href="/imdb?query=Inception"><strong>IMDb</strong><span>Movie and series title metadata</span></a>
+            <a href="/mydramalist?query=Moving"><strong>MyDramaList</strong><span>Drama and movie metadata</span></a>
+            <a href="/tmdb?query=Inception"><strong>TMDB</strong><span>Movie and TV metadata</span></a>
+        </div>
+    </section>
+</main>
+<footer><div class="wrap footer-row"><span>© 2026 The Zake. All rights reserved.</span><span class="socials">
+    <a href="https://github.com/Imkrishana" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.8.1-.8 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.3.8 1 .8 2v2.9c0 .3.2.7.8.6A12 12 0 0 0 12 .7Z"/></svg>
+    </a>
+    <a href="https://t.me/TheZake" target="_blank" rel="noreferrer" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.4 3.5-3.1 16.1c-.2 1.1-.8 1.4-1.6.9l-4.4-3.2-2.1 2c-.2.2-.4.4-.8.4l.3-4.5 8.1-7.3c.4-.3-.1-.5-.6-.2L7.2 13.8l-4.3-1.4c-.9-.3-.9-.9.2-1.3L20 3c.8-.3 1.6.2 1.4.5Z"/></svg>
+    </a>
+</span></div></footer>
+<script>
+    const menuToggle = document.getElementById("menuToggle");
+    const themeToggle = document.getElementById("themeToggle");
+    const drawer = document.getElementById("drawer");
+    const scrim = document.getElementById("scrim");
+    const themes = ["auto", "dark", "light"];
+    function setTheme(theme) { document.body.dataset.theme = theme; themeToggle.textContent = theme === "light" ? "☀" : theme === "dark" ? "☾" : "◐"; themeToggle.setAttribute("aria-label", "Theme: " + theme + ". Click to change theme."); localStorage.setItem("theme", theme); }
+    setTheme(localStorage.getItem("theme") || "auto");
+    function closeMenu() { drawer.classList.remove("open"); scrim.classList.remove("open"); document.body.classList.remove("menu-open"); menuToggle.setAttribute("aria-expanded", "false"); menuToggle.setAttribute("aria-label", "Open menu"); }
+    function toggleMenu() { const open = !drawer.classList.contains("open"); drawer.classList.toggle("open", open); scrim.classList.toggle("open", open); document.body.classList.toggle("menu-open", open); menuToggle.setAttribute("aria-expanded", String(open)); menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu"); }
+    menuToggle.addEventListener("click", toggleMenu); scrim.addEventListener("click", closeMenu); drawer.querySelectorAll("a").forEach(function (link) { link.addEventListener("click", closeMenu); });
+    themeToggle.addEventListener("click", function () { const current = document.body.dataset.theme || "auto"; setTheme(themes[(themes.indexOf(current) + 1) % themes.length]); });
+    const posterList = document.getElementById("posterList");
+    const bypassList = document.getElementById("bypassList");
+    const filter = document.getElementById("filter");
+    let posterItems = [];
+    let bypassItems = [];
+    function render(element, items) {
+        element.innerHTML = "";
+        items.forEach(function (item) {
+            const card = document.createElement("div");
+            card.className = "platform";
+            const name = document.createElement("strong");
+            name.textContent = item.name;
+            const domains = document.createElement("span");
+            domains.textContent = (item.domains || []).join(" · ");
+            card.appendChild(name);
+            card.appendChild(domains);
+            element.appendChild(card);
+        });
+    }
+    function applyFilter() {
+        const query = filter.value.trim().toLowerCase();
+        const matches = function (item) { return !query || item.name.toLowerCase().includes(query) || (item.domains || []).join(" ").toLowerCase().includes(query); };
+        render(posterList, posterItems.filter(matches));
+        render(bypassList, bypassItems.filter(matches));
+    }
+    async function load() {
+        try {
+            const responses = await Promise.all([fetch("/platforms"), fetch("/bypass/platforms")]);
+            const posterData = await responses[0].json();
+            const bypassData = await responses[1].json();
+            posterItems = posterData.platforms || [];
+            bypassItems = bypassData.platforms || [];
+            applyFilter();
+            document.getElementById("posterCount").textContent = "Poster hosts: " + (posterData.count || 0);
+            document.getElementById("bypassCount").textContent = "DDL hosts: " + (bypassData.count || 0);
+            document.getElementById("posterStatus").textContent = (posterData.count || 0) + " supported";
+            document.getElementById("bypassStatus").textContent = (bypassData.count || 0) + " supported";
+        } catch (error) {
+            document.getElementById("posterStatus").textContent = "Unable to load";
+            document.getElementById("bypassStatus").textContent = "Unable to load";
+        }
+    }
+    filter.addEventListener("input", applyFilter);
+    load();
+</script>
+</body>
+</html>
