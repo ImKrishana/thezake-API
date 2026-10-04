@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: posterapi
+    name: thezakeapi
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
