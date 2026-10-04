@@ -501,38 +501,73 @@ def gdflix(url):
 
 def mega(url):
     api = "https://megadl.the-zake.workers.dev/api/mega"
-    deadline = time() + 120
+    deadline = time() + 30
+
     try:
-        data = get(api, params={"url": url}, timeout=40).json()
+        remaining = deadline - time()
+        data = get(
+            api,
+            params={"url": url},
+            timeout=max(1, min(30, remaining))
+        ).json()
+
         if "error" in data:
-            raise DirectDownloadLinkException(f"ERROR: {data.get('message') or data['error']}")
+            raise DirectDownloadLinkException(
+                f"ERROR: {data.get('message') or data['error']}"
+            )
     except DirectDownloadLinkException:
         raise
     except Exception as e:
-        raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}: {e}")
+        raise DirectDownloadLinkException(
+            f"ERROR: {e.__class__.__name__}: {e}"
+        )
 
     job_id = data.get("job_id")
-    while data.get("state") not in ("completed", "partial", "failed", "expired"):
-        remaining = deadline - time()
-        if remaining <= 2:
+
+    while True:
+        state = data.get("state")
+
+        if state in ("completed", "partial"):
             break
-        sleep(2)
+
+        if state in ("failed", "expired"):
+            raise DirectDownloadLinkException(f"ERROR: Job {state}")
+
+        remaining = deadline - time()
+
+        if remaining <= 0:
+            break
+
+        sleep(min(2, remaining))
+
+        remaining = deadline - time()
+
+        if remaining <= 0:
+            break
+
         try:
-            data = get(f"{api}/status", params={"id": job_id}, timeout=min(20, remaining)).json()
+            data = get(
+                f"{api}/status",
+                params={"id": job_id},
+                timeout=remaining
+            ).json()
         except Exception:
             break
 
-    if data.get("state") in ("failed", "expired"):
-        raise DirectDownloadLinkException(f"ERROR: Job {data.get('state')}")
-
     files = [f for f in data.get("files", []) if f.get("download_url")]
+
     if not files:
         raise DirectDownloadLinkException("ERROR: No downloadable files found")
 
     if len(files) == 1:
         return files[0]["download_url"]
 
-    details = {"contents": [], "title": data.get("name") or "Mega", "total_size": 0}
+    details = {
+        "contents": [],
+        "title": data.get("name") or "Mega",
+        "total_size": 0
+    }
+
     for f in files:
         details["total_size"] += f.get("size") or 0
         details["contents"].append({
@@ -540,8 +575,8 @@ def mega(url):
             "filename": f["name"],
             "path": "",
         })
-    return details
 
+    return details
 
 def buzzheavier(url):
     """
