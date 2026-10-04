@@ -192,6 +192,8 @@ def direct_link_generator(link):
         return swisstransfer(link)
     elif "instagram.com" in domain:
         return instagram(link)
+    elif "mega.nz" in domain:
+        return mega(link)
     elif any(x in domain for x in ["akmfiles.com", "akmfls.xyz"]):
         return akmfiles(link)
     elif any(
@@ -495,6 +497,50 @@ def gdflix(url):
         if durl := parse_qs(urlparse(loc).query).get("url"):
             return durl[0]
         return loc
+
+
+def mega(url):
+    api = "https://megadl.the-zake.workers.dev/api/mega"
+    deadline = time() + 120
+    try:
+        data = get(api, params={"url": url}, timeout=40).json()
+        if "error" in data:
+            raise DirectDownloadLinkException(f"ERROR: {data.get('message') or data['error']}")
+    except DirectDownloadLinkException:
+        raise
+    except Exception as e:
+        raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}: {e}")
+
+    job_id = data.get("job_id")
+    while data.get("state") not in ("completed", "partial", "failed", "expired"):
+        remaining = deadline - time()
+        if remaining <= 2:
+            break
+        sleep(2)
+        try:
+            data = get(f"{api}/status", params={"id": job_id}, timeout=min(20, remaining)).json()
+        except Exception:
+            break
+
+    if data.get("state") in ("failed", "expired"):
+        raise DirectDownloadLinkException(f"ERROR: Job {data.get('state')}")
+
+    files = [f for f in data.get("files", []) if f.get("download_url")]
+    if not files:
+        raise DirectDownloadLinkException("ERROR: No downloadable files found")
+
+    if len(files) == 1:
+        return files[0]["download_url"]
+
+    details = {"contents": [], "title": data.get("name") or "Mega", "total_size": 0}
+    for f in files:
+        details["total_size"] += f.get("size") or 0
+        details["contents"].append({
+            "url": f["download_url"],
+            "filename": f["name"],
+            "path": "",
+        })
+    return details
 
 
 def buzzheavier(url):
