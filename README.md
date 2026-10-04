@@ -5,21 +5,21 @@
 <details>
   <summary><strong>Vercel (One-Click Deploy)</strong></summary>
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ImKrishana/thezake-API)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ImKrishana/thezake-API/tree/dev)
 
 </details>
 
 <details>
   <summary><strong>Heroku (One-Click Deploy)</strong></summary>
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ImKrishana/thezake-API/tree/main)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ImKrishana/thezake-API/tree/dev)
 
 </details>
 
 <details>
   <summary><strong>Render (One-Click Deploy)</strong></summary>
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ImKrishana/thezake-API&branch=main)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ImKrishana/thezake-API&branch=dev)
 
 </details>
 
