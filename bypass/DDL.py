@@ -192,6 +192,8 @@ def direct_link_generator(link):
         return swisstransfer(link)
     elif "instagram.com" in domain:
         return instagram(link)
+    elif "mega.nz" in domain:
+        return mega(link)
     elif any(x in domain for x in ["akmfiles.com", "akmfls.xyz"]):
         return akmfiles(link)
     elif any(
@@ -496,6 +498,85 @@ def gdflix(url):
             return durl[0]
         return loc
 
+
+def mega(url):
+    api = "https://megadl.the-zake.workers.dev/api/mega"
+    deadline = time() + 30
+
+    try:
+        remaining = deadline - time()
+        data = get(
+            api,
+            params={"url": url},
+            timeout=max(1, min(30, remaining))
+        ).json()
+
+        if "error" in data:
+            raise DirectDownloadLinkException(
+                f"ERROR: {data.get('message') or data['error']}"
+            )
+    except DirectDownloadLinkException:
+        raise
+    except Exception as e:
+        raise DirectDownloadLinkException(
+            f"ERROR: {e.__class__.__name__}: {e}"
+        )
+
+    job_id = data.get("job_id")
+
+    while True:
+        state = data.get("state")
+
+        if state in ("completed", "partial"):
+            break
+
+        if state in ("failed", "expired"):
+            raise DirectDownloadLinkException(f"ERROR: Job {state}")
+
+        remaining = deadline - time()
+
+        if remaining <= 0:
+            break
+
+        sleep(min(2, remaining))
+
+        remaining = deadline - time()
+
+        if remaining <= 0:
+            break
+
+        try:
+            data = get(
+                f"{api}/status",
+                params={"id": job_id},
+                timeout=remaining
+            ).json()
+        except Exception:
+            break
+
+    files = [f for f in data.get("files", []) if f.get("download_url")]
+
+    if not files:
+        raise DirectDownloadLinkException("ERROR: No downloadable files found")
+
+    if len(files) == 1:
+        return files[0]["download_url"]
+
+    details = {
+        "contents": [],
+        "title": data.get("name") or "Mega",
+        "total_size": 0
+    }
+
+    for f in files:
+        details["total_size"] += f.get("size") or 0
+        details["contents"].append({
+            "url": f["download_url"],
+            "filename": f["name"],
+            "path": "",
+        })
+
+    return details
 
 def buzzheavier(url):
     """
